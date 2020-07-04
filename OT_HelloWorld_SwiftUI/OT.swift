@@ -21,6 +21,7 @@ let kToken = "T1==cGFydG5lcl9pZD0xMDAmc2RrX3ZlcnNpb249dGJwaHAtdjAuOTEuMjAxMS0wNy
 let kWidgetHeight = 240
 let kWidgetWidth = 320
 
+
 class OT: NSObject {
     lazy var session: OTSession = {
         return OTSession(apiKey: kApiKey, sessionId: kSessionId, delegate: self)!
@@ -32,8 +33,8 @@ class OT: NSObject {
         return OTPublisher(delegate: self, settings: settings)!
     }()
     
-    var subscriber: OTSubscriber?
-    
+    @Published var subscriber: OTSubscriber?
+  
     override  init() {
         super.init()
         
@@ -139,7 +140,9 @@ extension OT: OTSessionDelegate {
     }
     
 }
-
+extension OT: ObservableObject {
+    
+}
 // MARK: - OTPublisher delegate callbacks
 extension OT: OTPublisherDelegate {
     func publisher(_ publisher: OTPublisherKit, streamCreated stream: OTStream) {
