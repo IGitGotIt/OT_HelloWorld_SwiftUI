@@ -9,39 +9,43 @@
 import SwiftUI
 import OpenTok
 
+
 struct PublisherView: UIViewRepresentable {
     var ot : OT
     init(openTok:OT) {
         ot = openTok
     }
     func makeUIView(context: Context) -> UIView {
-        return ot.publisher.view!
+        ot.publisher.view!
        }
     func updateUIView(_ uiView: UIView, context: Context) {
-        
+
     }
     
+
 }
 
 struct SubscriberView: UIViewRepresentable {
-  
+    
+
   var ot : OT
        init(openTok:OT) {
            ot = openTok
+        
        }
     func makeUIView(context: Context) -> UIView {
-        
-        return ot.subscriber?.view! ?? UIView()
+        ot.subscriber!.view!
     }
     func updateUIView(_ uiView: UIView, context: Context) {
 
-       
+
     }
+
 
 }
 
 struct ContentView: View  {
-   @ObservedObject var ot = OT()
+  @ObservedObject var ot = OT()
     
     var body: some View {
         VStack {
@@ -50,6 +54,7 @@ struct ContentView: View  {
                 .frame(width: 100, height: 150, alignment: .center)
             .clipShape(Capsule())
             Divider()
+            
             if ot.subscriber == nil {
                 Text("Waiting for someone")
             }  else {
@@ -58,14 +63,9 @@ struct ContentView: View  {
                     .frame(width: 100, height: 120, alignment: .center)
                     .clipShape(Circle())
                 
+
             }
-            Spacer()
-            
-            //s.frame(width: 100, height: 150, alignment: .center)
-                    
-            
-           
-            
+            Text(ot.subState.rawValue)
         }
     }
 }

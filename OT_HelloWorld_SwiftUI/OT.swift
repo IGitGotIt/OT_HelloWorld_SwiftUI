@@ -14,15 +14,25 @@ import OpenTok
 // Replace with your OpenTok API key
 let kApiKey = "100"
 // Replace with your generated session ID
-let kSessionId = "2_MX4xMDB-fjE1OTI1MDIyNjE2MTJ-cnJyMnNhTC9SQXo2dTVPdlBwcFZtSWpCfn4"
+let kSessionId = "1_MX4xMDB-fjE1OTY4MzY2Nzc1NDF-YzBQdE8rYkRVZDQ1RHNSQ2dBOWpKWXg5fn4"
 // Replace with your generated token
-let kToken = "T1==cGFydG5lcl9pZD0xMDAmc2RrX3ZlcnNpb249dGJwaHAtdjAuOTEuMjAxMS0wNy0wNSZzaWc9ZTc2MjEwM2Q3MjZjNGI0YjNiOTY1ZjYwNjBmYTA4MzAyNWMwMmIxYjpzZXNzaW9uX2lkPTJfTVg0eE1EQi1makUxT1RJMU1ESXlOakUyTVRKLWNuSnlNbk5oVEM5U1FYbzJkVFZQZGxCd2NGWnRTV3BDZm40JmNyZWF0ZV90aW1lPTE1OTI1MDIyNjEmcm9sZT1tb2RlcmF0b3Imbm9uY2U9MTU5MjUwMjI2MS42NzQxMTIxNTM1MTU4NSZleHBpcmVfdGltZT0xNTk1MDk0MjYx"
+let kToken = "T1==cGFydG5lcl9pZD0xMDAmc2RrX3ZlcnNpb249dGJwaHAtdjAuOTEuMjAxMS0wNy0wNSZzaWc9NjI4ZTlmY2Y4NzFiYjEyMGEwZDVlOTdkMDZhNTExYjU4MWJkNGY5ODpzZXNzaW9uX2lkPTFfTVg0eE1EQi1makUxT1RZNE16WTJOemMxTkRGLVl6QlFkRThyWWtSVlpEUTFSSE5TUTJkQk9XcEtXWGc1Zm40JmNyZWF0ZV90aW1lPTE1OTY4MzY2Nzcmcm9sZT1tb2RlcmF0b3Imbm9uY2U9MTU5NjgzNjY3Ny41OTA4Mjg3ODk1MjczJmV4cGlyZV90aW1lPTE1OTk0Mjg2Nzc="
 
 let kWidgetHeight = 240
 let kWidgetWidth = 320
 
+enum SubscriberState: String {
+    case didConnect = "Subscriber connected."
+    case didReconnect = "Subscriber did reconnect."
+    case failed = "Subscriber failed."
+    case none = ""
+}
 
 class OT: NSObject {
+
+    @Published var subState: SubscriberState = .none
+    
+    
     lazy var session: OTSession = {
         return OTSession(apiKey: kApiKey, sessionId: kSessionId, delegate: self)!
     }()
@@ -34,10 +44,10 @@ class OT: NSObject {
     }()
     
     @Published var subscriber: OTSubscriber?
-  
+    
     override  init() {
         super.init()
-        
+        //otc_log_enable(2348209)
         doConnect()
     }
     
@@ -88,7 +98,7 @@ class OT: NSObject {
             processError(error)
         }
         subscriber = OTSubscriber(stream: stream, delegate: self)
-        
+        subscriber?.delegate = self
         session.subscribe(subscriber!, error: &error)
     }
     
@@ -140,6 +150,7 @@ extension OT: OTSessionDelegate {
     }
     
 }
+// MARK: ObservableObject
 extension OT: ObservableObject {
     
 }
@@ -166,13 +177,15 @@ extension OT: OTPublisherDelegate {
 // MARK: - OTSubscriber delegate callbacks
 extension OT: OTSubscriberDelegate {
     func subscriberDidConnect(toStream subscriberKit: OTSubscriberKit) {
- 
+        subState = .didConnect
     }
     
     func subscriber(_ subscriber: OTSubscriberKit, didFailWithError error: OTError) {
+        subState = .failed
         print("Subscriber failed: \(error.localizedDescription)")
     }
     func subscriberDidReconnect(toStream subscriber: OTSubscriberKit) {
+        subState = .didReconnect
          print("Subscriber did reconnect")
     }
 }
