@@ -18,9 +18,9 @@ struct SubscriberView {
 }
 extension SubscriberView : View {
     var body: some View {
-        if ot.subState == .none {
+        if ot.subState == .notYet {
             Image("defaultAvatar")
-                .frame(width: 100, height: 100, alignment: .center)
+                .resizable()
             } else {
                 UISubscriberView(openTok: ot)
             }

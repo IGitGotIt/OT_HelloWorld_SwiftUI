@@ -12,13 +12,23 @@ import OpenTok
 
 
 struct ContentView: View  {
-  @StateObject var ot = OT()
+    @StateObject var ot : OT
     
     var body: some View {
         VStack {
             Header()
-            //PublisherView(openTok:ot)
-            //SubscriberView(openTok:ot)
+            PublisherView(openTok:ot)
+            SubscriberView(openTok:ot)
+        
+        HStack {
+            Button(action: {
+                      print("button pressed")
+
+                    }) {
+                        Image("videoIconPub")
+                        .resizable()
+                    }
+          }
         }
     }
 }
@@ -27,6 +37,6 @@ struct ContentView: View  {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ContentView(ot: OT())
     }
 }

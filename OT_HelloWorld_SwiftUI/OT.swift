@@ -14,9 +14,9 @@ import OpenTok
 // Replace with your OpenTok API key
 let kApiKey = "100"
 // Replace with your generated session ID
-let kSessionId = "2_MX4xMDB-flR1ZSBOb3YgMTkgMTE6MDk6NTggUFNUIDIwMTN-MC4zNzQxNzIxNX4"
+let kSessionId = "1_MX4xMDB-fjE2MjI4NjgzNDY5MjV-aklrOEoxVCtZQmI3a1VrSUtKV2FqYnQ1fn4"
 // Replace with your generated token
-let kToken = "T1==cGFydG5lcl9pZD0xMDAmc2RrX3ZlcnNpb249dGJwaHAtdjAuOTEuMjAxMS0wNy0wNSZzaWc9MGE4NTE0YTMzYTA2ZDNhYzExZDIxMjhlZDA5NzgxOTIzMzAwOGVkNDpzZXNzaW9uX2lkPTJfTVg0eE1EQi1mbFIxWlNCT2IzWWdNVGtnTVRFNk1EazZOVGdnVUZOVUlESXdNVE4tTUM0ek56UXhOekl4Tlg0JmNyZWF0ZV90aW1lPTE2MjI4MzcxNTYmcm9sZT1tb2RlcmF0b3Imbm9uY2U9MTYyMjgzNzE1Ni4zODM2MzM4MDgzNjQ3JmV4cGlyZV90aW1lPTE2MjU0MjkxNTY="
+let kToken = "T1==cGFydG5lcl9pZD0xMDAmc2RrX3ZlcnNpb249dGJwaHAtdjAuOTEuMjAxMS0wNy0wNSZzaWc9MGFlYjQ1OWEyNzMzZjlmYmMxYmFjNTg3YzU0MjJmMzExNzNhOTVlNzpzZXNzaW9uX2lkPTFfTVg0eE1EQi1makUyTWpJNE5qZ3pORFk1TWpWLWFrbHJPRW94VkN0WlFtSTNhMVZyU1V0S1YyRnFZblExZm40JmNyZWF0ZV90aW1lPTE2MjI4NjgzNDcmcm9sZT1tb2RlcmF0b3Imbm9uY2U9MTYyMjg2ODM0Ny4wNDc1MjA3OTY5OTE3NSZleHBpcmVfdGltZT0xNjI1NDYwMzQ3"
 
 let kWidgetHeight = 240
 let kWidgetWidth = 320
@@ -25,20 +25,22 @@ enum SubscriberState: String {
     case didConnect = "Subscriber connected."
     case didReconnect = "Subscriber did reconnect."
     case failed = "Subscriber failed."
-    case none = "Waiting for someone."
+    case notYet = "Waiting for someone."
 }
 
 enum PublisherState: String {
     case didConnect = "Publisher connected."
     case destroyed = "Publisher destroyed."
     case failed = "Publisher failed."
-    case none = "Wait...."
+    case notYet = "Wait...."
+    case startedInit = "Started initilization."
 }
 
 class OT: NSObject {
 
-    @Published var subState: SubscriberState = .none
-    @Published var pubState: PublisherState  = .none
+    @Published var subState: SubscriberState = .notYet
+    @Published var pubState: PublisherState  = .notYet
+    var subscriber: OTSubscriber?
     
     lazy var session: OTSession = {
         return OTSession(apiKey: kApiKey, sessionId: kSessionId, delegate: self)!
@@ -47,10 +49,13 @@ class OT: NSObject {
     lazy var publisher: OTPublisher = {
         let settings = OTPublisherSettings()
         settings.name = UIDevice.current.name
+        settings.audioTrack = true
+        settings.videoTrack = true
+        pubState = .startedInit
         return OTPublisher(delegate: self, settings: settings)!
     }()
     
-    @Published var subscriber: OTSubscriber?
+ 
     
     override  init() {
         super.init()
@@ -84,9 +89,9 @@ class OT: NSObject {
         defer {
             processError(error)
         }
-        
+  
         session.publish(publisher, error: &error)
-        var x = 9
+       
     }
     
     /**

@@ -18,11 +18,9 @@ struct PublisherView {
 }
 extension PublisherView : View {
     var body: some View {
-        Text("Publisher")
-            .bold()
-        if ot.pubState == .none {
+        if ot.pubState == .notYet {
             Image("defaultAvatar")
-                .frame(width: 100, height: 100, alignment: .center)
+                .resizable()
         } else {
             UIPublisherView(openTok: ot)
         }
@@ -37,8 +35,11 @@ struct UIPublisherView: UIViewRepresentable {
         ot = openTok
     }
     func makeUIView(context: Context) -> UIView {
-        ot.publisher.view!
-        
+        if let view = ot.publisher.view {
+            return view
+        }
+        // will happen only if pubstate = .notYet
+        return UIImageView(image: UIImage(named: "closeXBlue"))
     }
     func updateUIView(_ uiView: UIView, context: Context) {
 
