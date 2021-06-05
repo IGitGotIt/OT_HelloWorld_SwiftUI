@@ -14,9 +14,9 @@ import OpenTok
 // Replace with your OpenTok API key
 let kApiKey = "100"
 // Replace with your generated session ID
-let kSessionId = "1_MX4xMDB-fjE1OTY4MzY2Nzc1NDF-YzBQdE8rYkRVZDQ1RHNSQ2dBOWpKWXg5fn4"
+let kSessionId = "2_MX4xMDB-flR1ZSBOb3YgMTkgMTE6MDk6NTggUFNUIDIwMTN-MC4zNzQxNzIxNX4"
 // Replace with your generated token
-let kToken = "T1==cGFydG5lcl9pZD0xMDAmc2RrX3ZlcnNpb249dGJwaHAtdjAuOTEuMjAxMS0wNy0wNSZzaWc9NjI4ZTlmY2Y4NzFiYjEyMGEwZDVlOTdkMDZhNTExYjU4MWJkNGY5ODpzZXNzaW9uX2lkPTFfTVg0eE1EQi1makUxT1RZNE16WTJOemMxTkRGLVl6QlFkRThyWWtSVlpEUTFSSE5TUTJkQk9XcEtXWGc1Zm40JmNyZWF0ZV90aW1lPTE1OTY4MzY2Nzcmcm9sZT1tb2RlcmF0b3Imbm9uY2U9MTU5NjgzNjY3Ny41OTA4Mjg3ODk1MjczJmV4cGlyZV90aW1lPTE1OTk0Mjg2Nzc="
+let kToken = "T1==cGFydG5lcl9pZD0xMDAmc2RrX3ZlcnNpb249dGJwaHAtdjAuOTEuMjAxMS0wNy0wNSZzaWc9MGE4NTE0YTMzYTA2ZDNhYzExZDIxMjhlZDA5NzgxOTIzMzAwOGVkNDpzZXNzaW9uX2lkPTJfTVg0eE1EQi1mbFIxWlNCT2IzWWdNVGtnTVRFNk1EazZOVGdnVUZOVUlESXdNVE4tTUM0ek56UXhOekl4Tlg0JmNyZWF0ZV90aW1lPTE2MjI4MzcxNTYmcm9sZT1tb2RlcmF0b3Imbm9uY2U9MTYyMjgzNzE1Ni4zODM2MzM4MDgzNjQ3JmV4cGlyZV90aW1lPTE2MjU0MjkxNTY="
 
 let kWidgetHeight = 240
 let kWidgetWidth = 320
@@ -25,13 +25,20 @@ enum SubscriberState: String {
     case didConnect = "Subscriber connected."
     case didReconnect = "Subscriber did reconnect."
     case failed = "Subscriber failed."
-    case none = ""
+    case none = "Waiting for someone."
+}
+
+enum PublisherState: String {
+    case didConnect = "Publisher connected."
+    case destroyed = "Publisher destroyed."
+    case failed = "Publisher failed."
+    case none = "Wait...."
 }
 
 class OT: NSObject {
 
     @Published var subState: SubscriberState = .none
-    
+    @Published var pubState: PublisherState  = .none
     
     lazy var session: OTSession = {
         return OTSession(apiKey: kApiKey, sessionId: kSessionId, delegate: self)!
@@ -79,11 +86,7 @@ class OT: NSObject {
         }
         
         session.publish(publisher, error: &error)
-        
-//        if let pubView = publisher.view {
-//            pubView.frame = CGRect(x: 0, y: 0, width: kWidgetWidth, height: kWidgetHeight)
-//            view.addSubview(pubView)
-//        }
+        var x = 9
     }
     
     /**
@@ -158,11 +161,13 @@ extension OT: ObservableObject {
 extension OT: OTPublisherDelegate {
     func publisher(_ publisher: OTPublisherKit, streamCreated stream: OTStream) {
         print("Publishing")
+        pubState = .didConnect
         doSubscribe(stream)
       
     }
     
     func publisher(_ publisher: OTPublisherKit, streamDestroyed stream: OTStream) {
+        pubState = .destroyed
         cleanupPublisher()
         if let subStream = subscriber?.stream, subStream.streamId == stream.streamId {
             cleanupSubscriber()
@@ -170,6 +175,7 @@ extension OT: OTPublisherDelegate {
     }
     
     func publisher(_ publisher: OTPublisherKit, didFailWithError error: OTError) {
+        pubState = .failed
         print("Publisher failed: \(error.localizedDescription)")
     }
 }

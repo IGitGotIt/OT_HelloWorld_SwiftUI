@@ -10,62 +10,15 @@ import SwiftUI
 import OpenTok
 
 
-struct PublisherView: UIViewRepresentable {
-    var ot : OT
-    init(openTok:OT) {
-        ot = openTok
-    }
-    func makeUIView(context: Context) -> UIView {
-        ot.publisher.view!
-       }
-    func updateUIView(_ uiView: UIView, context: Context) {
-
-    }
-    
-
-}
-
-struct SubscriberView: UIViewRepresentable {
-    
-
-  var ot : OT
-       init(openTok:OT) {
-           ot = openTok
-        
-       }
-    func makeUIView(context: Context) -> UIView {
-        ot.subscriber!.view!
-    }
-    func updateUIView(_ uiView: UIView, context: Context) {
-
-
-    }
-
-
-}
 
 struct ContentView: View  {
-  @ObservedObject var ot = OT()
+  @StateObject var ot = OT()
     
     var body: some View {
         VStack {
-            Text("Publisher").bold()
-            PublisherView(openTok: ot)
-                .frame(width: 100, height: 150, alignment: .center)
-            .clipShape(Capsule())
-            Divider()
-            
-            if ot.subscriber == nil {
-                Text("Waiting for someone")
-            }  else {
-                Text("Subscriber").bold()
-                SubscriberView(openTok: ot)
-                    .frame(width: 100, height: 120, alignment: .center)
-                    .clipShape(Circle())
-                
-
-            }
-            Text(ot.subState.rawValue)
+            Header()
+            //PublisherView(openTok:ot)
+            //SubscriberView(openTok:ot)
         }
     }
 }
